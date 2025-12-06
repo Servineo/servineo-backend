@@ -39,40 +39,18 @@ export async function getDiscordUser(accessToken: string): Promise<DiscordUser |
 
 
  //Buscar usuario 
-
-export async function findUserByDiscordId(
-  discordIdOrEmailOrUserId: string
-): Promise<IUser & { _id: ObjectId } | null> {
-  
+ 
+export async function findUserByDiscordId(discordId: string): Promise<IUser & { _id: ObjectId } | null> {
   const mongoClient = await clientPromise;
   const db = mongoClient.db("ServineoBD");
 
-  let user: IUser | null = null;
-
-  // 1. Buscar por Discord ID o email dentro de authProviders
-  user = await db.collection<IUser>("users").findOne({
+  const user = await db.collection<IUser>("users").findOne({
     "authProviders.provider": "discord",
-    $or: [
-      { "authProviders.providerId": discordIdOrEmailOrUserId },
-      { email: discordIdOrEmailOrUserId } 
-    ],
+    "authProviders.providerId": discordId,
   });
 
-  if (user) {
-    return { ...user, _id: user._id as ObjectId };
-  }
-
-  try {
-    const objectId = new ObjectId(discordIdOrEmailOrUserId);
-    user = await db.collection<IUser>("users").findOne({ _id: objectId });
-  } catch (error) {
-  }
-
-  if (user) {
-    return { ...user, _id: user._id as ObjectId };
-  }
-
-  return null;
+  if (!user) return null;
+  return { ...user, _id: user._id as ObjectId };
 }
 
 

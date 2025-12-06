@@ -1,8 +1,7 @@
 // servineo-backend/src/api/controllers/wallet.controller.ts
-import type { Request, Response } from 'express';
 import Stripe from 'stripe';
 import { Wallet } from '../../models/wallet.model';
-import { User } from '../../models/user.model';
+import {User} from '../../models/user.model';
 import { Recharge } from '../../models/walletRecharge.model';
 import { computeWalletFlags } from '../../models/wallet/flags';
 import { logFlagChangeHuman } from '../../models/wallet/prettyLog';
@@ -21,7 +20,7 @@ export const rechargeWallet = async (req: Request, res: Response) => {
   try {
     console.log('🔹 Entrada a rechargeWallet');
 
-    const { userId, amount } = req.body as any;
+    const { userId, amount } = req.body;
     console.log('📥 Datos recibidos:', { userId, amount });
 
     const amountNumber = parseFloat(amount);
@@ -74,7 +73,7 @@ export const rechargeWallet = async (req: Request, res: Response) => {
     await wallet.save();
     console.log(`💰 Wallet de ${user.name} actualizado. Nuevo saldo: ${wallet.balance}`);
 
-    // 4.1️ Recalcular flags de saldo bajo / crítico con la misma lógica centralizada
+        // 4.1️ Recalcular flags de saldo bajo / crítico con la misma lógica centralizada
     try {
       const pre = previousBalance;
       const post = Number(wallet.balance ?? 0);
@@ -117,6 +116,7 @@ export const rechargeWallet = async (req: Request, res: Response) => {
     } catch (flagErr) {
       console.error('⚠️ No se pudieron recalcular flags de wallet tras recarga:', flagErr);
     }
+
 
     // 5️⃣ Intentar registrar la recarga
 

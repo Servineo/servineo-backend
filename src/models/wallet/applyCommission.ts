@@ -1,13 +1,8 @@
 // servineo-backend/src/models/wallet/applyCommission.ts
-import { computeWalletFlags } from './flags';
-import type { WalletModelAdapter } from './adapter';
+import { computeWalletFlags } from "./flags";
+import type { WalletModelAdapter } from "./adapter";
 import { logFlagChangeHuman } from './prettyLog';
 
-type WalletSlice = {
-  balance: number;
-  flags: any;
-  lastLowBalanceNotification?: Date;
-};
 
 /**
  * Resta `commission` del balance y ajusta flags según las reglas.
@@ -32,7 +27,7 @@ export async function applyCommissionToWallet(
     preBalance: pre,
     postBalance: post,
     lowBalanceThreshold: thr,
-    //prevFlags: current.flags ?? null,
+    prevFlags: current.flags ?? null,
   });
 
   // 🔊 Log solo si cambian los flags (incluye pasar a "ok")
@@ -50,16 +45,15 @@ export async function applyCommissionToWallet(
   }
 
   // marca auditoría básica si encendiste algo
-  /*const patch: WalletPatch = {
+  const patch: Partial<WalletSlice> = {
     balance: post,
     flags: nextFlags,
   };
-
   if (nextFlags.needsLowAlert || nextFlags.needsCriticalAlert) {
     patch.lastLowBalanceNotification = new Date();
   }
-*/
-  // await adapter.updateWalletById(fixerId, patch);
+
+  await adapter.updateWalletById(fixerId, patch);
 
   return {
     preBalance: pre,
@@ -90,23 +84,23 @@ export async function applyTopUpToWallet(
     preBalance: pre,
     postBalance: post,
     lowBalanceThreshold: thr,
-    //prevFlags: current.flags ?? null,
+    prevFlags: current.flags ?? null,
   });
 
   if (changed) {
-    logFlagChangeHuman({
-      fixerId,
-      pre,
-      post,
-      thr,
-      state,
-      crossed,
-      flags: nextFlags,
-      currency: 'BOB', // o quítalo si no quieres mostrarlo
-    });
-  }
+  logFlagChangeHuman({
+    fixerId,
+    pre,
+    post,
+    thr,
+    state,
+    crossed,
+    flags: nextFlags,
+    currency: 'BOB', // o quítalo si no quieres mostrarlo
+  });
+}
 
-  // usar patch, igual que en applyCommissionToWallet
+// usar patch, igual que en applyCommissionToWallet
   const patch: any = {
     balance: post,
     flags: nextFlags,
